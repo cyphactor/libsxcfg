@@ -1,0 +1,157 @@
+FileName: README
+Author(s): Andrew De Ponte <cyphactor@gmail.com>
+
+Table of Contents
+
+    1. What Is It? .....................................................
+    2. Building ........................................................
+    3. Producing MSVC Compatible Build .................................
+    4. Using MSVC to Link to MSVC Compatible Build .....................
+    5. Systems Tested On ...............................................
+    6. Directory Contents ..............................................
+
+1.  What Is It?
+
+    lib_sxcfg is a library which provides a cross-platform API for
+    dealing with config files. It provides a mechanism for parsing
+    section and option/value pair based config files in a specific
+    format. It also provides a mechanism for easily obtaining values of
+    specific options. Beyond that the parsing algorithm accepts config
+    files produced on Windows, Mac OS-X, and Unix machines as well as
+    runs on Windows, Mac OS-X, and Unix machines.
+    
+2.  Building
+
+    This project's build sequence is managed by the autotools. Hence,
+    the following command sequence can be used to build the project in
+    any of the unix varients (include Mac OS-X). Note: On Mac OS-X
+    systems there is one thing which has to be done before the following
+    command sequence is executed. The LIBTOOLIZE environment must be set
+    to /usr/bin/glibtoolize. This can be done by using the `export
+    LIBTOOLIZE=/usr/bin/glibtoolize` assuming the use of BASH as the
+    shell. This is due to the fact that on Mac OS-X the standard
+    libtoolize application has been renamed to glibtoolize.
+    
+    $ ./bootstrap.sh && ./configure && make
+
+    One, may also build a static version of the library by using the
+    --enable-static flag and --disable-shared flag when running the
+    ./configure script. The following is an example of this.
+
+    $ ./bootstrap.sh && ./configure --disable-shared --enable-static
+
+    However, to build a version for windows system from a Debian Linux
+    Etch (testing) box, one needs to first install the mingw32 package
+    via the following:
+
+    # apt-get install mingw32
+    # apt-get install mingw32-binutils
+    # apt-get install mingw32-runtime
+
+    Once, the mingw32 package is installed one can trivially build
+    Windows binaries of the project by using the following command
+    sequence:
+
+    $ ./bootstrap.sh && ./configure --target=i586-mingw32msvc \
+        --host=i586-mingw32msvc --build=i686-pc-linux-gnu && make
+
+    One could also build this on a Windows computer which has cygwin
+    installed on it and the necessary autotools, however this is too
+    large of a subject to cover in this README. One could even build it
+    using Microsoft Visual Studio however this would require configuring
+    and building a project appropriately to correctly build it.
+
+    Note: The above produces a version of the library that is only
+    useable by linking to it through mingw32. To produce a version of
+    the library which can be linked to using MSVC, please refer to the
+    'Producing MSVC Compatible Build' section.
+
+3.  Producing MSVC Compatible Build
+    
+    Sadly, at this time it is not possible to produce a MSVC Compatible
+    build of the library without using some Microsoft tools. Hence, you
+    will need not only a Unix system but also Windows system with
+    Microsoft Visual C++ 2005 Express installed. Other, versions of
+    Microsoft Visual C++ may work although this has only been tested
+    with Microsoft Visual C++ 2005 Express. Note: The library could be
+    built completely using Microsoft tools, it is avoided since the
+    development environment of choice is Unix systems.
+
+    The first necesarry stage is to build the DLL and DEF file. This is
+    automatically done by performing the build command in the 'Building'
+    section that describes building the library for Windows. After,
+    running the above command successfully it will have produced a
+    number of files including the DLL and DEF. The DLL is in
+    src/.libs/libsxcfg-0.dll relative to the trunk and the DEF file is
+    in src/.libs/libsxcfg.def relative to the trunk. The DLL should be
+    renamed libsxcfg.dll.
+
+    Once, the DLL and DEF files have been obtained it is time to move
+    them over to a Windows machine at which point Visual Studio Command
+    Prompt should be opened and the current working directory should be
+    changed to directory which contains both the DLL and DEF files.
+    Once, in the proper directory run the following command:
+
+    lib /machine:i386 /def:libsxcfg.def
+
+    The above command will produce both a libsxcfg.lib file and a
+    libsxcfg.exp file. The libsxcfg.lib file is what is called an import
+    library in Windows. It is a fake library that maps the names of the
+    exported functions, etc to the addresses inside the actual DLL. This
+    is necessary because Windows DLLs do NOT have a mapping from the
+    exported items to the addresses already inside the DLL.
+
+    After obtaining the DLL, .LIB, and the appropriate header files one
+    has everything needed to link to the library using Microsoft Visual
+    C++ 2005 Express.
+    
+4.  Using MSVC to Link to MSVC Compatible Build
+
+    In order to link to a MSVC compatible build of the library using
+    MSVC you must compile the client application with the
+    LIBSXCFG_DLL_IMPORT macro defined. This macro states that we are
+    compiling the client application which wants to import functions,
+    etc which have been exported from the DLL using the DLL_EXPORT macro
+    when the DLL was built. An example of this may look as follows:
+
+    cl /DLIBSXCFG_DLL_IMPORT cliapp.cpp libsxcfg.lib /* C++ link to C/C++ lib */
+
+    or the follwing in the case of C client application:
+
+    cl /DLIBSXCFG_DLL_IMPORT /Tc cliapp.c libsxcfg.lib /* C link to C lib */
+
+    Note: In the above examples there is no specification for a location
+    of the header files. The use of the /I option to cl is suggested. It
+    adds a directory to the list of directories that are search for
+    include files. The suggested method is to copy all the header files
+    (ending in the .h extension found in the src/ directory) to a
+    directory tree similar to the following:
+
+    <project src dir>/include/sxcfg/
+
+    In which <project src dir> is the directory where the client apps
+    source is located and the sxcfg directory is where all the libsxcfg
+    header files are located. This would allow one to link an
+    application by using a command similar to the following from the
+    <project src dir>:
+    
+    cl /DLIBSXCFG_DLL_IMPORT /Iinclude/sxcfg/ cliapp.cpp libsxcfg.lib
+
+    Note: The above example assumes that the libsxcfg.lib and libsxcfg.dll
+    are in the <project src dir>.
+
+5.  Systems Tested On
+
+    The following systems are all the systems which lib_pmf has been
+    successfully run on.
+
+    - Linux Debian Etch (Testing)
+
+6. Directory Contents
+
+    doc - Contains general project documentation
+    doc/dox - Contains all the doxygen genarted documentation when one
+              runs the doxygen command from the trunk of the project.
+    src - Contains all lib_sxcfg source files.
+    testing - Contains applications to test the library. These
+              applications can also be used as usage examples.
