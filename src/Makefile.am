@@ -1,4 +1,5 @@
 AM_CFLAGS = -Wall -Werror
+AUTOMAKE_OPTIONS = no-dependencies
 sxcfgincdir = $(includedir)/sxcfg
 lib_LTLIBRARIES = libsxcfg.la
 libsxcfg_la_LDFLAGS = -no-undefined -version-info 0:0:0 @SXCFG_SYSTEM@

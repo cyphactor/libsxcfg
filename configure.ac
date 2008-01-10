@@ -53,22 +53,13 @@ case $host in
     # specifies to the linker (ld) that the starting address at which it
     # should start binding is 0xC0000000. This is done to avoid overlap
     # of address space mapping.
-    *-apple-darwin*) SXCFG_SYSTEM='-Wl,-prebind,-seg1addr,0xC0000000' ;;
+    #*-apple-darwin*) SXCFG_SYSTEM='-Wl,-prebind,-seg1addr,0xC0000000' ;;
 
-    #
-    # FIX-ME:
-    #
-    # Currently in order for applications that link to libpmf have to
-    # have it in the same directory as the exectubale or in the system
-    # directories. This goes against Mac's standard for application
-    # packagesing which requires that all the libraries are put inside
-    # the application package. However, when in the application package
-    # the applications cannot find libpmf because the library is built
-    # for a system path such as /usr/lib/ rather than the appropriate
-    # path relative to the executable
-    # (@executable_path/../Frameworks/libbz2.1.0.2.dylib). The following
-    # is an example of a possible fix.
-    #*-apple-darwin*) PMF_SYSTEM='-install_name @executable_path/../Frameworks/libbz2.1.02.2.dylib-Wl,-prebind,-seg1addr,0xC0000000 -lssl -lpthread' ;;
+	*-apple-darwin*)
+	    SXCFG_SYSTEM="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc"
+		CFLAGS="$CFLAGS -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc"
+		;;
+
 
     # Handle linking to the proper libraries for all other machines.
     *)          SXCFG_SYSTEM='' ;;
@@ -91,7 +82,7 @@ esac
 # the library is the release version.
 #CFLAGS='-O2'
 
-#AC_SUBST([CFLAGS])
+AC_SUBST([CFLAGS])
 AC_SUBST([SXCFG_SYSTEM])
 #AC_SUBST([PMF_CFLAGS])
 

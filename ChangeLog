@@ -1,0 +1,7 @@
+2008-01-09 Andrew De Ponte <cyphactor@gmail.com>
+
+* source:trunk/src/Makefile.am (): Modified the src/Makefile.am so that lib_sxcfg can be built as a Mac OS X 10.4 universal library on either a Mac OS X 10.4 machine or a Mac OS X 10.5 machine.
+
+* source:trunk/configure.ac (): Modified the configure.ac file so that lib_sxcfg could be built as a Mac OS X 10.4 universal library on either a Mac OS X 10.4 machine or a Mac OS X 10.5 machine.
+
+* source:trunk/testing/Makefile.am (): Modified the testing/Makefile.am file so that lib_sxcfg test applications could be built as Mac OS X 10.4 universal binaries on either a Mac OS X 10.4 or a Mac OS X 10.5 machine.
