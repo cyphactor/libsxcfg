@@ -1,3 +1,7 @@
+2008-01-16 Andrew De Ponte <cyphactor@gmail.com>
+
+* source:trunk/configure.ac (): Modified to handle checking endianness properly when building universal binaries on Mac OS X.
+
 2008-01-09 Andrew De Ponte <cyphactor@gmail.com>
 
 * source:trunk/src/Makefile.am (): Modified the src/Makefile.am so that lib_sxcfg can be built as a Mac OS X 10.4 universal library on either a Mac OS X 10.4 machine or a Mac OS X 10.5 machine.
