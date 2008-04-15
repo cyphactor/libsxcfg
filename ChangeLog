@@ -1,3 +1,17 @@
+2008-04-14 Andrew De Ponte <cyphactor@gmail.com>
+
+* source:trunk/src/sxcfg.h (sxcfg_write_config): Added the prototype and documentation for the sxcfg_write_config function so that it is possible to write a configuration to a file for later reading, or reading by other applications or processes that use libsxcfg.
+
+* source:trunk/src/sxcfg.c (sxcfg_write_config): Implemented the sxcfg_write_config() function so that users can write config files programatically.
+
+* source:trunk/src/sxcfg.h (sxcfg_set_opt): Added the prototype and documentation for the sxcfg_set_opt() function so that it is possible to set the value of a option which has previously been appended to the config handle or loaded by the sxcfg_parse_config() function.
+
+* source:trunk/src/sxcfg.c (sxcfg_set_opt): Implemented the sxcfg_set_opt() function so that users could set options that were either previously appended to a handle or previously loaded by the sxcfg_parse_config() function.
+
+* source:trunk/testing/testset.c (): Added the testset.c file as a program to test the sxcfg_write_config() function and the sxcfg_set_opt() function.
+
+* source:trunk/testing/Makefile.am (): Modified to build the testset.c file into the testset binary and mark it as a non-install binary.
+
 2008-01-16 Andrew De Ponte <cyphactor@gmail.com>
 
 * source:trunk/configure.ac (): Modified to handle checking endianness properly when building universal binaries on Mac OS X.

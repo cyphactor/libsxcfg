@@ -273,6 +273,68 @@ int sxcfg_parse_config(sxcfg_handle_t *p_handle, const char *config_path) {
     return 0;
 }
 
+int sxcfg_write_config(sxcfg_handle_t *p_handle, const char *config_path) {
+    FILE *conf_fp;
+    int r;
+    int bytes_written;
+    char line[SXCFG_MAX_LINE_LEN];
+    
+    sxcfg_section_t *p_cur_sec;
+    _sxcfg_option_t *p_cur_opt;
+    
+    conf_fp = fopen(config_path, "w");
+    if (conf_fp == NULL) {
+        return -1;
+    }
+    
+    p_cur_sec = p_handle->p_first_sec;
+    while(p_cur_sec) {
+#ifdef WIN32
+        snprintf(line, SXCFG_MAX_LINE_LEN, "[%s]\r\n", p_cur_sec->name);
+#else
+        snprintf(line, SXCFG_MAX_LINE_LEN, "[%s]\n", p_cur_sec->name);
+#endif
+        bytes_written = fwrite((const void *)line, 1, strlen(line), conf_fp);
+        if (bytes_written != strlen(line)) {
+            r = fclose(conf_fp);
+            if (r != 0) {
+                return -4;
+            }
+            return -3;
+        }
+        
+        p_cur_opt = p_cur_sec->p_first_opt;
+        while(p_cur_opt) {
+#ifdef WIN32
+            snprintf(line, SXCFG_MAX_LINE_LEN, "%s:%s\r\n", p_cur_opt->name,
+                     p_cur_opt->value);
+#else
+            snprintf(line, SXCFG_MAX_LINE_LEN, "%s:%s\n", p_cur_opt->name,
+                     p_cur_opt->value);
+#endif
+            bytes_written = fwrite((const void *)line, 1, strlen(line), conf_fp);
+            if (bytes_written != strlen(line)) {
+                r = fclose(conf_fp);
+                if (r != 0) {
+                    return -6;
+                }
+                return -5;
+            }
+            
+            p_cur_opt = p_cur_opt->p_next_opt;
+        }
+        
+        p_cur_sec = p_cur_sec->p_next_sec;
+    }
+    
+    r = fclose(conf_fp);
+    if (r != 0) {
+        return -2;
+    }
+    
+    return 0;
+}
+
 int sxcfg_get_opt(sxcfg_handle_t *p_handle, const char *sec_name,
     const char *opt_name, char *p_opt_value, unsigned int len) {
 
@@ -321,6 +383,65 @@ int sxcfg_get_opt(sxcfg_handle_t *p_handle, const char *sec_name,
     // p_opt_value.
     strncpy(p_opt_value, p_sel_opt->value, len);
 
+    return 0;
+}
+
+int sxcfg_set_opt(sxcfg_handle_t *p_handle, const char *sec_name, const char *opt_name, const char *opt_value) {
+    sxcfg_section_t *p_cur_sec;
+    _sxcfg_option_t *p_cur_opt;
+    int found_section;
+    int found_option;
+    int val_len;
+    char *tmp_val;
+    
+    found_section = 0;
+    found_option = 0;
+    val_len = 0;
+    tmp_val = NULL;
+    
+    // Find the section
+    p_cur_sec = p_handle->p_first_sec;
+    while ((p_cur_sec) && (!found_section)) {
+        if (strcmp(p_cur_sec->name, sec_name) == 0) {
+            found_section = 1;
+        } else {
+            p_cur_sec = p_cur_sec->p_next_sec;
+        }
+    }
+    
+    if (!found_section) {
+        return -1;
+    }
+    
+    // Find option
+    p_cur_opt = p_cur_sec->p_first_opt;
+    while ((p_cur_opt) && (!found_option)) {
+        if (strcmp(p_cur_opt->name, opt_name) == 0) {
+            found_option = 1;
+        } else {
+            p_cur_opt = p_cur_opt->p_next_opt;
+        }
+    }
+    
+    if (!found_option) {
+        return -2;
+    }
+    
+    // Set the value of the option
+    val_len = strlen(opt_value);
+    tmp_val = (char *)malloc(val_len + 1);
+    if (tmp_val == NULL) {
+        return -3;
+    }
+    memcpy(tmp_val, opt_value, val_len);
+    tmp_val[val_len] = '\0';
+    
+    if (p_cur_opt->value != NULL) {
+        free(p_cur_opt->value);
+        p_cur_opt->value = NULL;
+    }
+    p_cur_opt->value = tmp_val;
+    
     return 0;
 }
 

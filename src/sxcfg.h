@@ -125,6 +125,8 @@ SXCFG_EXPORT int sxcfg_append_opt(sxcfg_section_t *p_sec, const char *name,
  * format and loads the handle with all the data from the config file so
  * that functions like sxcfg_get_opt() may be used on the handle to
  * acquire values of specific options in the config file.
+ * @param p_handle Pointer to the config handle to store parsed data in.
+ * @param config_path Path the config file to parse.
  * @return An integer representing success (zero) or failure (non-zero).
  * @retval 0 Successfully parsed and loaded in the specified config file.
  * @retval -1 Failed to open config file.
@@ -136,6 +138,29 @@ SXCFG_EXPORT int sxcfg_append_opt(sxcfg_section_t *p_sec, const char *name,
  * @retval -7 Processed count is greater than bytes read.
  */
 SXCFG_EXPORT int sxcfg_parse_config(sxcfg_handle_t *p_handle,
+    const char *config_path);
+
+/**
+ * @brief Write a config file given a handle.
+ *
+ * The sxcfg_write_config() function writes a config file in the appropriate
+ * format based on the provided handle. In general this function is called
+ * after calling sxcfg_append_sec() and sxcfg_append_opt() a few times.
+ * Note: If a config file is previously loaded with the sxcfg_parse_config()
+ * function and then re-written with the sxcfg_write_config() any comments
+ * previously existing in that config file will be lost.
+ * @param p_handle Pointer to the config handle to write to file.
+ * @param config_path Path to write the config file to.
+ * @return An integer represent success (zero) or failure (non-zero).
+ * @retval 0 Successfully wrote the specified config file.
+ * @retval -1 Failed to open config file for writing.
+ * @retval -2 Failed to close config file after writing.
+ * @retval -3 Failed to write a section to the config file.
+ * @retval -4 Failed to close file after failing to write a section.
+ * @retval -5 Failed to write a option to the config file.
+ * @retval -6 Failed to close file after failing to write a section.
+ */
+SXCFG_EXPORT int sxcfg_write_config(sxcfg_handle_t *p_handle,
     const char *config_path);
 
 /**
@@ -162,6 +187,27 @@ SXCFG_EXPORT int sxcfg_parse_config(sxcfg_handle_t *p_handle,
 SXCFG_EXPORT int sxcfg_get_opt(sxcfg_handle_t *p_handle,
     const char *sec_name, const char *opt_name, char *p_opt_value,
     unsigned int len);
+
+/**
+ * @brief Set an options value.
+ *
+ * The sxcfg_set_opt() function provides a mechanism for setting the value
+ * of a option which is already existant in a handle either by previously
+ * being appended to a section using the sxcfg_append_opt() function or the
+ * sxcfg_parse_config() function. Note: In the case of failure the original
+ * option value is left in its original state.
+ * @param p_handle Pointer to config handle to set option in.
+ * @param sec_name Name of the section the option is in that you want to set.
+ * @param opt_name Name of the option you want to set the value for.
+ * @param opt_value The value to set the option to.
+ * @return An integer representing success (zero) or failure (non-zero).
+ * @retval 0 Successfully set the option value.
+ * @retval -1 Failed to find named section.
+ * @retval -2 Failed to find named option in the named section.
+ * @retval -3 Failed to allocate memory for new value.
+ */
+SXCFG_EXPORT int sxcfg_set_opt(sxcfg_handle_t *p_handle,
+    const char *sec_name, const char *opt_name, const char *opt_value);
 
 /**
  * Free config file handle.
