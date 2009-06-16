@@ -56,11 +56,19 @@ case $host in
     #*-apple-darwin*) SXCFG_SYSTEM='-Wl,-prebind,-seg1addr,0xC0000000' ;;
 
 	*-apple-darwin*)
-#	    SXCFG_SYSTEM="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc"
-#		CFLAGS="$CFLAGS -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc"
-		SXCFG_SYSTEM=""
-		CFLAGS="$CFLAGS"
-		;;
+	    AC_ARG_ENABLE([universal-binary],
+	        [AS_HELP_STRING([--enable-universal-binary enable universal binary creation (default disabled)])],
+	        [enable_univ_bin=$enableval],
+	        [enable_univ_bin=no])
+	    
+	    [if [ "$enable_univ_bin" = "yes" ]
+	    then
+	        CFLAGS="$CFLAGS -mmacosx-version-min=10.4 -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc"
+	        SXCFG_SYSTEM="-mmacosx-version-min=10.4 -Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc"
+	    fi]	        
+
+	    ;;	
+
 		
     # Handle linking to the proper libraries for all other machines.
     *)          SXCFG_SYSTEM='' ;;
