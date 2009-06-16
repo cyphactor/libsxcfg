@@ -56,11 +56,12 @@ case $host in
     #*-apple-darwin*) SXCFG_SYSTEM='-Wl,-prebind,-seg1addr,0xC0000000' ;;
 
 	*-apple-darwin*)
-	    SXCFG_SYSTEM="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc"
-		CFLAGS="$CFLAGS -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc"
+#	    SXCFG_SYSTEM="-Wl,-syslibroot,/Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc"
+#		CFLAGS="$CFLAGS -isysroot /Developer/SDKs/MacOSX10.4u.sdk -arch i386 -arch ppc"
+		SXCFG_SYSTEM=""
+		CFLAGS="$CFLAGS"
 		;;
-
-
+		
     # Handle linking to the proper libraries for all other machines.
     *)          SXCFG_SYSTEM='' ;;
 esac
